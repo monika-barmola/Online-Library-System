@@ -1,26 +1,33 @@
 import React from "react";
-import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const BookDetails = () => {
-  const { id } = useParams();
-  const book = useSelector(state => state.books.find(b => b.id === id));
+const BookDetails = ({ searchTerm }) => {
+  const books = useSelector((state) => state.books) || [];
 
-  if (!book) return <p className="text-center text-gray-600">Book not found.</p>;
+  if (!books || !Array.isArray(books)) {
+    return <p>Loading books...</p>;
+  }
+
+  const filteredBooks = books.filter((book) =>
+    book.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold">{book.title}</h2>
-        <p className="text-gray-700 mt-2">by {book.author}</p>
-        <p className="mt-4">{book.description}</p>
-        <div className="mt-4">
-          <span className="font-bold">Rating: </span> ⭐ {book.rating}
-        </div>
-        <Link to="/books/fiction" className="mt-6 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Back to Browse
-        </Link>
-      </div>
+    <div className="book-container">
+      <h2>Available Books</h2>
+      {filteredBooks.length > 0 ? (
+        <ul className="book-list">
+          {filteredBooks.map((book) => (
+            <li key={book.id} className="book-card">
+              <h3>{book.title}</h3>
+              <p><strong>Author:</strong> {book.author}</p>
+              <p><strong>Category:</strong> {book.category}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No books found.</p>
+      )}
     </div>
   );
 };
